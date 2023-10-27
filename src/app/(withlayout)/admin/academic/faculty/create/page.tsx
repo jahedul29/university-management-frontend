@@ -3,8 +3,8 @@ import Form from "@/components/Form/Form";
 import FormInput from "@/components/Form/FormInput";
 import ActionBar from "@/components/ui/ActionBar";
 import CustomBreadcrumb from "@/components/ui/CustomBreadcrumb";
-import { useAddDepartmentMutation } from "@/redux/api/departmentApi";
-import { departmentSchema } from "@/schemas/department";
+import { useAddAcademicFacultyMutation } from "@/redux/api/academicFacultyApi";
+import { academicFacultySchema } from "@/schemas/academicFaculty";
 import { getUserInfo } from "@/services/auth.service";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, Col, Row, message } from "antd";
@@ -12,17 +12,17 @@ import { useRouter } from "next/navigation";
 
 const CreatePage = () => {
   const { role } = getUserInfo() as any;
-  const [addDepartment] = useAddDepartmentMutation();
+  const [addAcademicFaculty] = useAddAcademicFacultyMutation();
   const router = useRouter();
 
   const onSubmit = async (data: any) => {
-    message.loading("Creating department");
+    message.loading("Creating Academic Faculty");
     console.log({ data });
     try {
       // const res = await userLogin({ ...data }).unwrap();
-      await addDepartment(data);
-      message.success("Department added successfully");
-      router.push("/super_admin/department");
+      await addAcademicFaculty(data);
+      message.success("Academic faculty added successfully");
+      router.push("/admin/academic/faculty");
     } catch (error: any) {
       console.log(error.message);
       message.error(error.message);
@@ -38,8 +38,8 @@ const CreatePage = () => {
             link: `/${role}`,
           },
           {
-            label: `Manage Department`,
-            link: `${role}/department`,
+            label: `Manage Academic Faculties`,
+            link: `${role}/academic/faculty`,
           },
           {
             label: `Create`,
@@ -47,9 +47,12 @@ const CreatePage = () => {
           },
         ]}
       />
-      <ActionBar title="Create Department"></ActionBar>
+      <ActionBar title="Create Academic Faculty"></ActionBar>
       <div>
-        <Form submitHandler={onSubmit} resolver={yupResolver(departmentSchema)}>
+        <Form
+          submitHandler={onSubmit}
+          resolver={yupResolver(academicFacultySchema)}
+        >
           <div
             style={{
               marginBottom: "10px",

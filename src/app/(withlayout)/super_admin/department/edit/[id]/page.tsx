@@ -1,32 +1,49 @@
 "use client";
+
 import Form from "@/components/Form/Form";
 import FormInput from "@/components/Form/FormInput";
 import ActionBar from "@/components/ui/ActionBar";
 import CustomBreadcrumb from "@/components/ui/CustomBreadcrumb";
-import { useAddDepartmentMutation } from "@/redux/api/departmentApi";
+import {
+  useGetDepartmentByIdQuery,
+  useUpdateDepartmentMutation,
+} from "@/redux/api/departmentApi";
 import { departmentSchema } from "@/schemas/department";
 import { getUserInfo } from "@/services/auth.service";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, Col, Row, message } from "antd";
 import { useRouter } from "next/navigation";
 
-const CreatePage = () => {
+type EditDepartmentPropsType = {
+  params: {
+    id: string;
+  };
+};
+
+const EditDepartment = ({ params }: EditDepartmentPropsType) => {
+  const { id } = params;
   const { role } = getUserInfo() as any;
-  const [addDepartment] = useAddDepartmentMutation();
   const router = useRouter();
+  const { data, isLoading } = useGetDepartmentByIdQuery(id, {
+    refetchOnMountOrArgChange: true,
+  });
+  const [updateDepartment] = useUpdateDepartmentMutation();
 
   const onSubmit = async (data: any) => {
-    message.loading("Creating department");
-    console.log({ data });
+    message.loading("Updating department");
     try {
       // const res = await userLogin({ ...data }).unwrap();
-      await addDepartment(data);
-      message.success("Department added successfully");
+      await updateDepartment({ id, body: data });
+      message.success("Department updated successfully");
       router.push("/super_admin/department");
     } catch (error: any) {
       console.log(error.message);
       message.error(error.message);
     }
+  };
+
+  const defaultValues = {
+    title: data?.title,
   };
 
   return (
@@ -38,18 +55,22 @@ const CreatePage = () => {
             link: `/${role}`,
           },
           {
-            label: `Manage Department`,
-            link: `${role}/department`,
+            label: `Department List`,
+            link: `/${role}/department`,
           },
           {
-            label: `Create`,
+            label: `Update Department`,
             link: ``,
           },
         ]}
       />
-      <ActionBar title="Create Department"></ActionBar>
+      <ActionBar title="Update Department"></ActionBar>
       <div>
-        <Form submitHandler={onSubmit} resolver={yupResolver(departmentSchema)}>
+        <Form
+          submitHandler={onSubmit}
+          defaultValues={defaultValues}
+          resolver={yupResolver(departmentSchema)}
+        >
           <div
             style={{
               marginBottom: "10px",
@@ -75,7 +96,7 @@ const CreatePage = () => {
           </div>
 
           <Button type="primary" htmlType="submit">
-            Create
+            Update
           </Button>
         </Form>
       </div>
@@ -83,4 +104,4 @@ const CreatePage = () => {
   );
 };
 
-export default CreatePage;
+export default EditDepartment;

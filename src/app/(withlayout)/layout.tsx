@@ -21,7 +21,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
   }, [router]);
 
   return (
-    <Layout hasSider style={{ minHeight: "100vh" }}>
+    <Layout hasSider={true} style={{ minHeight: "100vh" }}>
       <Sidebar />
       <Contents>{children}</Contents>
     </Layout>

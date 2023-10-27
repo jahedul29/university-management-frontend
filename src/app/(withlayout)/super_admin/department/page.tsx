@@ -3,41 +3,58 @@
 import ActionBar from "@/components/ui/ActionBar";
 import CustomBreadcrumb from "@/components/ui/CustomBreadcrumb";
 import CustomTable from "@/components/ui/CustomTable";
-import { useDepartmentsQuery } from "@/redux/api/departmentApi";
+import { useDebounced } from "@/hooks/common";
+import {
+  useDeleteDepartmentMutation,
+  useDepartmentsQuery,
+} from "@/redux/api/departmentApi";
 import { getUserInfo } from "@/services/auth.service";
 import {
   DeleteOutlined,
   EditOutlined,
-  EyeOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import { Button, Input } from "antd";
+import { Button, Input, message } from "antd";
+import dayjs from "dayjs";
 import Link from "next/link";
 import { useState } from "react";
 
 const Department = () => {
-  // const query: Record<string, any> = {};
-  const [size, setSize] = useState<number>(10);
+  const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
-
-  // query["size"] = size;
-  // query["page"] = page;
-  // query["sortBy"] = sortBy;
-  // query["sortOrder"] = sortOrder;
-  // query["searchTerm"] = searchTerm;
+  const [deleteDepartment] = useDeleteDepartmentMutation();
 
   const query: Record<string, any> = {
-    size,
+    limit,
     page,
     sortBy,
     sortOrder,
-    searchTerm,
   };
 
+  const debounceTerm = useDebounced({
+    searchQuery: searchTerm,
+    delay: 600,
+  });
+
+  if (debounceTerm) {
+    query["searchTerm"] = debounceTerm;
+  }
+
   const { data, isLoading } = useDepartmentsQuery({ ...query });
+
+  const handleDelete = async (id: string) => {
+    message.loading("Deleting department..");
+    try {
+      await deleteDepartment(id);
+      message.success("Department deleted successfully");
+    } catch (error: any) {
+      message.error(error.message);
+      console.error(error.message);
+    }
+  };
 
   const { role } = getUserInfo() as any;
   const columns = [
@@ -49,23 +66,24 @@ const Department = () => {
       title: "Created At",
       dataIndex: "createdAt",
       sorter: true,
+      render: (data: any) => {
+        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
+      },
     },
     {
       title: "Action",
       render: function (data: any) {
         return (
           <>
-            <Button onClick={() => console.log({ data })} type="primary">
+            {/* <Button onClick={() => console.log({ data })} type="primary">
               <EyeOutlined />
-            </Button>
-            <Button
-              onClick={() => console.log({ data })}
-              type="primary"
-              style={{ margin: "0px 10px" }}
-            >
-              <EditOutlined />
-            </Button>
-            <Button onClick={() => console.log({ data })} type="primary" danger>
+            </Button> */}
+            <Link href={`/super_admin/department/edit/${data?.id}`}>
+              <Button type="primary" style={{ margin: "0px 10px" }}>
+                <EditOutlined />
+              </Button>
+            </Link>
+            <Button onClick={() => handleDelete(data.id)} type="primary" danger>
               <DeleteOutlined />
             </Button>
           </>
@@ -76,12 +94,11 @@ const Department = () => {
 
   const onPaginationChange = (page: number, pageSize: number) => {
     setPage(page);
-    setSize(pageSize);
+    setLimit(pageSize);
   };
 
   const onTableChange = (pagination: any, filter: any, sorter: any) => {
     const { order, field } = sorter;
-    console.log({ order, field });
     setSortBy(field);
     setSortOrder(
       order === "descend" ? "desc" : order === "ascend" ? "asc" : ""
@@ -143,7 +160,7 @@ const Department = () => {
           loading={isLoading}
           dataSource={data?.departments}
           columns={columns}
-          pageSize={size}
+          pageSize={limit}
           totalPage={data?.meta?.total || 1}
           showSizeChanger={true}
           onPaginationChange={onPaginationChange}

@@ -2,7 +2,7 @@ import { ReactElement, ReactNode } from "react";
 
 type IActionBarProps = {
   title: string;
-  children: ReactNode | ReactElement;
+  children?: ReactNode | ReactElement;
 };
 
 const ActionBar = ({ title, children }: IActionBarProps) => {

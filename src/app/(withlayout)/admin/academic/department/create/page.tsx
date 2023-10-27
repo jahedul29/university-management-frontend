@@ -1,28 +1,42 @@
 "use client";
 import Form from "@/components/Form/Form";
 import FormInput from "@/components/Form/FormInput";
+import FormSelectField from "@/components/Form/FormSelectField";
 import ActionBar from "@/components/ui/ActionBar";
 import CustomBreadcrumb from "@/components/ui/CustomBreadcrumb";
-import { useAddDepartmentMutation } from "@/redux/api/departmentApi";
-import { departmentSchema } from "@/schemas/department";
+import { useAddAcademicDepartmentMutation } from "@/redux/api/academicDepartemntApi";
+import { useAcademicFacultiesQuery } from "@/redux/api/academicFacultyApi";
+import { academicFacultySchema } from "@/schemas/academicFaculty";
 import { getUserInfo } from "@/services/auth.service";
+import { IAcademicFaculty } from "@/types";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, Col, Row, message } from "antd";
 import { useRouter } from "next/navigation";
 
 const CreatePage = () => {
   const { role } = getUserInfo() as any;
-  const [addDepartment] = useAddDepartmentMutation();
+  const [addAcademicDepartment] = useAddAcademicDepartmentMutation();
   const router = useRouter();
+  const { data, isLoading } = useAcademicFacultiesQuery({
+    limit: 100,
+    page: 1,
+  });
+
+  const academicFacultyOptions = data?.academicFaculties?.map(
+    (item: IAcademicFaculty) => ({
+      label: item.title,
+      value: item.id,
+    })
+  );
 
   const onSubmit = async (data: any) => {
-    message.loading("Creating department");
+    message.loading("Creating Academic Department");
     console.log({ data });
     try {
       // const res = await userLogin({ ...data }).unwrap();
-      await addDepartment(data);
-      message.success("Department added successfully");
-      router.push("/super_admin/department");
+      await addAcademicDepartment(data);
+      message.success("Academic department added successfully");
+      router.push("/admin/academic/department");
     } catch (error: any) {
       console.log(error.message);
       message.error(error.message);
@@ -38,8 +52,8 @@ const CreatePage = () => {
             link: `/${role}`,
           },
           {
-            label: `Manage Department`,
-            link: `${role}/department`,
+            label: `Manage Academic Department`,
+            link: `${role}/academic/department`,
           },
           {
             label: `Create`,
@@ -47,9 +61,12 @@ const CreatePage = () => {
           },
         ]}
       />
-      <ActionBar title="Create Department"></ActionBar>
+      <ActionBar title="Create Academic Department"></ActionBar>
       <div>
-        <Form submitHandler={onSubmit} resolver={yupResolver(departmentSchema)}>
+        <Form
+          submitHandler={onSubmit}
+          resolver={yupResolver(academicFacultySchema)}
+        >
           <div
             style={{
               marginBottom: "10px",
@@ -69,6 +86,26 @@ const CreatePage = () => {
                   label="Title"
                   placeholder="Title"
                   size="large"
+                />
+              </Col>
+            </Row>
+            <Row
+              gutter={[
+                { xs: 8, sm: 16, md: 24, lg: 32 },
+                { xs: 16, sm: 16, md: 16, lg: 16 },
+              ]}
+            >
+              <Col
+                className="gutter-row"
+                span={8}
+                style={{ margin: "10px 0px" }}
+              >
+                <FormSelectField
+                  name="academicFacultyId"
+                  label="Academic Faculty"
+                  size="large"
+                  options={academicFacultyOptions || []}
+                  placeholder="Select"
                 />
               </Col>
             </Row>

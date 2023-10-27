@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactElement, ReactNode } from "react";
+import { ReactElement, ReactNode, useEffect } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 
 type FromConfig = {
@@ -26,10 +26,18 @@ const Form = ({
   const methods = useForm(formConfig);
   const { handleSubmit, reset } = methods;
 
-  const onSubmit = (data: any) => {
-    submitHandler(data);
-    reset();
+  const onSubmit = async (data: any) => {
+    try {
+      await submitHandler(data);
+      reset();
+    } catch (err: any) {
+      console.log(err.message);
+    }
   };
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset, methods]);
 
   return (
     <FormProvider {...methods}>

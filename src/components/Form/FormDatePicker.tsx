@@ -11,6 +11,7 @@ interface IFormDatePickerProps {
   value?: Dayjs;
   label?: string;
   size?: "large" | "small";
+  picker?: "date" | "week" | "month" | "quarter" | "year";
 }
 
 const FormDatePicker = ({
@@ -19,6 +20,7 @@ const FormDatePicker = ({
   label,
   size,
   onChange,
+  picker = "date",
 }: IFormDatePickerProps) => {
   const {
     control,
@@ -42,9 +44,10 @@ const FormDatePicker = ({
         render={({ field }) => (
           <DatePicker
             size={size}
-            value={dayjs(field.value) || ""}
+            defaultValue={dayjs(field.value) || ""}
             onChange={handleOnChange}
             style={{ width: "100%" }}
+            picker={picker}
           />
         )}
       />

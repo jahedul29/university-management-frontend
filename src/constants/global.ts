@@ -99,3 +99,70 @@ export const academicSemesterOptions = [
     value: "summer2023",
   },
 ];
+
+export const monthOptions = [
+  {
+    label: "January",
+    value: "January",
+  },
+  {
+    label: "February",
+    value: "February",
+  },
+  {
+    label: "March",
+    value: "March",
+  },
+  {
+    label: "April",
+    value: "April",
+  },
+  {
+    label: "May",
+    value: "May",
+  },
+  {
+    label: "June",
+    value: "June",
+  },
+  {
+    label: "July",
+    value: "July",
+  },
+
+  {
+    label: "August",
+    value: "August",
+  },
+  {
+    label: "September",
+    value: "September",
+  },
+  {
+    label: "October",
+    value: "October",
+  },
+  {
+    label: "November",
+    value: "November",
+  },
+  {
+    label: "December",
+    value: "December",
+  },
+];
+
+export const academicSemesterTitleOptions = [
+  {
+    label: "Autumn",
+    value: "Autumn",
+  },
+  {
+    label: "Fall",
+    value: "Fall",
+  },
+  {
+    label: "Spring",
+    value: "Spring",
+  },
+];

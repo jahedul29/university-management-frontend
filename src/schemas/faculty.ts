@@ -10,7 +10,7 @@ export const facultySchema = yup.object().shape({
     }),
     email: yup.string().email().required("Email is required"),
     designation: yup.string().required("Designation is required"),
-    birthDate: yup.string().required("Birth Date is required"),
+    dateOfBirth: yup.string().required("Birth Date is required"),
     academicDepartment: yup
       .string()
       .required("Academic department is required"),

@@ -4,7 +4,10 @@ import ActionBar from "@/components/ui/ActionBar";
 import CustomBreadcrumb from "@/components/ui/CustomBreadcrumb";
 import CustomTable from "@/components/ui/CustomTable";
 import { useDebounced } from "@/hooks/common";
-import { useAdminsQuery, useDeleteAdminMutation } from "@/redux/api/adminApi";
+import {
+  useDeleteFacultyMutation,
+  useFacultiesQuery,
+} from "@/redux/api/facultyApi";
 import { getUserInfo } from "@/services/auth.service";
 import { IDepartment } from "@/types";
 import {
@@ -17,13 +20,13 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import { useState } from "react";
 
-const ManageAdmin = () => {
+const ManageFaculty = () => {
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<string>("");
   const [sortOrder, setSortOrder] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [deleteAdmin] = useDeleteAdminMutation();
+  const [deleteFaculty] = useDeleteFacultyMutation();
 
   const query: Record<string, any> = {
     limit,
@@ -41,13 +44,17 @@ const ManageAdmin = () => {
     query["searchTerm"] = debounceTerm;
   }
 
-  const { data, isLoading } = useAdminsQuery({ ...query });
+  const { data, isLoading } = useFacultiesQuery({ ...query });
 
   const handleDelete = async (id: string) => {
-    message.loading("Deleting admin..");
+    message.loading("Deleting faculty..");
     try {
-      await deleteAdmin(id);
-      message.success("Admin deleted successfully");
+      const res: any = await deleteFaculty(id);
+      if (res?.data) {
+        message.success("Faculty deleted successfully");
+      } else {
+        message.error(res?.error?.data);
+      }
     } catch (error: any) {
       message.error(error.message);
       console.error(error.message);
@@ -63,8 +70,7 @@ const ManageAdmin = () => {
     },
     {
       title: "Name",
-      dataIndex: "name",
-      render: (data: any) => data.firstName,
+      dataIndex: "firstName",
     },
     {
       title: "Email",
@@ -72,8 +78,8 @@ const ManageAdmin = () => {
     },
     {
       title: "Department",
-      dataIndex: "managementDepartment",
-      render: (data: IDepartment) => data.title,
+      dataIndex: "academicDepartment",
+      render: (data: IDepartment) => data?.title,
     },
     {
       title: "Designation",
@@ -99,13 +105,13 @@ const ManageAdmin = () => {
             {/* <Button onClick={() => console.log({ data })} type="primary">
               <EyeOutlined />
             </Button> */}
-            <Link href={`/super_admin/manage-admin/edit/${data?.id}`}>
+            <Link href={`/admin/manage-faculty/edit/${data?.id}`}>
               <Button type="primary" style={{ margin: "0px 10px" }}>
                 <EditOutlined />
               </Button>
             </Link>
             <Button
-              onClick={() => handleDelete(data?._id)}
+              onClick={() => handleDelete(data?.id)}
               type="primary"
               danger
             >
@@ -145,16 +151,12 @@ const ManageAdmin = () => {
             link: `/${role}`,
           },
           {
-            label: `Admin List`,
-            link: `/${role}/manage-admin`,
-          },
-          {
-            label: `Update`,
-            link: ``,
+            label: `Manage Faculty`,
+            link: "",
           },
         ]}
       />
-      <ActionBar title="Admin List">
+      <ActionBar title="Faculty List">
         <>
           <Input
             style={{ width: "200px" }}
@@ -165,7 +167,7 @@ const ManageAdmin = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <div>
-            <Link href={"/super_admin/manage-admin/create"}>
+            <Link href={"/admin/manage-faculty/create"}>
               <Button size="large" type="primary">
                 Create
               </Button>
@@ -187,7 +189,7 @@ const ManageAdmin = () => {
       <div>
         <CustomTable
           loading={isLoading}
-          dataSource={data?.admins}
+          dataSource={data?.faculties}
           columns={columns}
           pageSize={limit}
           totalPage={data?.meta?.total || 1}
@@ -201,4 +203,4 @@ const ManageAdmin = () => {
   );
 };
 
-export default ManageAdmin;
+export default ManageFaculty;
